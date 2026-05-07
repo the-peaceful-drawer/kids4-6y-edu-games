@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>LEVEL 1 アルファベット (Alphabet)</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <style>
+    body {
+      background-color: #f5f5f5;
+      text-align: center;
+    }
+
+    /* Bố cục lưới cho bảng chữ cái */
+    .alphabet-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      max-width: 800px;
+      margin: 0 auto 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Thiết kế chữ cái A-Z */
+    .letter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 70px;
+      height: 70px;
+      background: #cce5ff;
+      /* Màu xanh nhạt giống code cũ của bạn */
+      color: #2c3e50;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 40px;
+      font-weight: bold;
+      border: 3px solid #74b9ff;
+      transition: all 0.2s ease;
+      user-select: none;
+      /* Ngăn chặn zoom khi double click trên mobile */
+      touch-action: manipulation;
+    }
+
+    /* Hiệu ứng khi lướt chuột và bấm */
+    .letter:hover {
+      background: #74b9ff;
+      color: white;
+      transform: translateY(-5px);
+    }
+
+    .letter:active {
+      transform: scale(0.9);
+      background: #f1c40f;
+      border-color: #f39c12;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>LEVEL 1 <br>ENGLISH ALPHABET</h1>
+  <div class="instruction">Touch the letter to listen </div>
+
+  <!-- Nơi chứa các chữ cái A-Z -->
+  <div class="alphabet-container" id="letters"></div>
+
+  <div class="nav-buttons">
+    <a href="../index.html" class="nav-button">🏠 HOME</a>
+    <a href="lv2_abcword.html" class="nav-button">🔜 Next Level</a>
+  </div>
+
+  <script>
+    const lettersContainer = document.getElementById('letters');
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    // Hàm phát âm thanh sử dụng Web Speech API (Có sẵn trong trình duyệt)
+    function speakLetter(text) {
+      // Hủy bỏ âm thanh đang đọc dở (nếu trẻ bấm liên tục nhiều chữ)
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US"; // Phát âm chuẩn tiếng Anh Mỹ
+      utterance.rate = 0.8;     // Đọc chậm lại một chút để trẻ dễ nghe (mặc định là 1)
+      utterance.pitch = 1.2;    // Chỉnh tone giọng cao lên một chút cho giống giọng hoạt hình
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Tự động sinh ra 26 chữ cái thay vì viết tay từng thẻ div
+    alphabet.forEach(letter => {
+      const div = document.createElement('div');
+      div.className = 'letter';
+      div.textContent = letter;
+
+      // Khi bấm vào chữ cái sẽ gọi hàm đọc âm thanh
+      div.onclick = function () {
+        speakLetter(letter);
+
+        // Tạo hiệu ứng đổi màu vàng chớp nhoáng khi bấm trúng
+        const originalBg = this.style.backgroundColor;
+        this.style.backgroundColor = '#f1c40f';
+        this.style.color = 'white';
+        setTimeout(() => {
+          this.style.backgroundColor = '';
+          this.style.color = '';
+        }, 300);
+      };
+
+      lettersContainer.appendChild(div);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Number Matching Game</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 10px;
+      background: #f5f5f5;
+    }
+
+    .number {
+      display: inline-block;
+      margin: 6px;
+      padding: 12px 18px;
+      background: #cce5ff;
+      border-radius: 10px;
+      cursor: grab;
+      font-size: 28px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .num_image-box {
+      display: inline-block;
+      margin: 10px;
+      border: 2px dashed #aaa;
+      padding: 10px;
+      width: 120px;
+      height: 160px;
+      vertical-align: top;
+      background: white;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .num_image-box img {
+      width: 100px;
+      height: 100px;
+    }
+
+    .num_image-box.correct {
+      border-color: green;
+      background: #e0ffe0;
+    }
+
+    .speak-btn {
+      margin-top: 5px;
+      padding: 4px 8px;
+      background: #ffd966;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    #number {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>LEVEL 3 <br>NUMBER</h1>
+  <h2>Match the correct word with the number</h2>
+  <div id="number">
+    <!-- Chữ cái từ A đến Z -->
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="number-one">
+      One</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Seventeen">Seventeen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Three">Three</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Thirteen">Thirteen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="number-Six">
+      Six</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="number-Two">
+      Two</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Eight">Eight</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="number-Ten">
+      Ten</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Eleven">Eleven</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Nineteen">Nineteen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Twelve">Twelve</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Fourteen">Fourteen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Seven">Seven</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Sixteen">Sixteen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Four">Four</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Eighteen">Eighteen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Twenty">Twenty</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Nine">Nine</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Fifteen">Fifteen</div>
+    <div class="number" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)"
+      id="number-Five">Five</div>
+  </div>
+
+  <div id="images">
+    <!-- Ví dụ minh họa cho mỗi chữ -->
+    <script>
+      const items = [
+        ["One", "1"], ["Two", "2"], ["Three", "3"], ["Four", "4"], ["Five", "5"],
+        ["Six", "6"], ["Seven", "7"], ["Eight", "8"], ["Nine", "9"], ["Ten", "10"],
+        ["Eleven", "11"], ["Twelve", "12"], ["Thirteen", "13"], ["Fourteen", "14"], ["Fifteen", "15"],
+        ["Sixteen", "16"], ["Seventeen", "17"], ["Eighteen", "18"], ["Nineteen", "19"], ["Twenty", "20"]
+      ];
+
+      items.forEach(([number, word]) => {
+        const imageFile = `../image/${word.toLowerCase().replace(' ', '_')}.png`;
+        document.write(`
+        <div class="num_image-box" ondrop="drop(event)" ondragover="allowDrop(event)" data-number="${number}">
+          <img src="${imageFile}" alt="${word}">
+          <button class="speak-btn" onclick="speakWord('${word}')">Listen</button>
+        </div>
+      `);
+      });
+    </script>
+  </div>
+
+  <script>
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    function dragStartTouch(ev) { ev.target.draggable = true; }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const number = document.getElementById(data).innerText;
+      if (ev.currentTarget.dataset.number === number) {
+        ev.currentTarget.classList.add("correct");
+        if (!ev.currentTarget.querySelector('.dropped')) {
+          const dropped = document.createElement("div");
+          dropped.className = "dropped";
+          dropped.innerText = number;
+          ev.currentTarget.appendChild(dropped);
+          speakWord(number, ev.currentTarget.innerText.trim());
+        }
+      }
+    }
+
+    function speakWord(number, word) {
+      const utter = new SpeechSynthesisUtterance(`${number}`);
+      utter.lang = "en-US";
+      speechSynthesis.speak(utter);
+    }
+  </script>
+</body>
+<div class="nav-buttons">
+  <a href="lv2_abcword.html" class="nav-button">🔙 Previous Level</a>
+  <a href="../index.html" class="nav-button">🏠 HOME</a>
+  <a href="lv4_arrange.html" class="nav-button">🔜 Next Level</a>
+</div>
+
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LEVEL5  せんたくし</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+  <h1>LEVEL5 <br> けっかをせんたく</h1>
+  <img src="../image/lv5_img.jpg" height="150" width="150px" alt="Sprunki">
+  <div class="question" id="question"></div>
+  <div class="choices" id="choices"></div>
+  <button class="common-button" id="check-button" onclick="checkAnswer()">Check</button>
+  <div class="message" id="message"></div>
+  <button class="common-button" id="reset-button" onclick="startNewGame()" style="display:none; margin-top: 20px;">New</button>
+  <div class="nav-buttons">
+    <a href="level4.html" class="nav-button">🔙 Previous Level</a>
+    <a href="math.html" class="nav-button">🎓 Back</a>
+    <a href="level5.html" class="nav-button">🔜 Next Level</a>
+  </div>
+
+  <script>
+    const questionElement = document.getElementById("question");
+    const choicesContainer = document.getElementById("choices");
+    const messageElement = document.getElementById("message");
+    const checkBtn = document.getElementById("check-button");
+    const newBtn = document.getElementById("reset-button");
+
+    let currentQuestionIndex = 0;
+    let correctAnswers = [];
+    let selectedIndexes = new Set();
+    let questions = [];
+
+    function getRandomExpression(target = 10, correct = true) {
+      let a, b, op;
+      if (correct) {
+        if (Math.random() < 0.5) {
+          // cộng
+          a = Math.floor(Math.random() * target) + 1;
+          b = target - a;
+          op = '+';
+        } else {
+          // trừ, với a < 20
+          a = Math.floor(Math.random() * (20 - target)) + target + 1;
+          b = a - target;
+          op = '-';
+        }
+        return { text: `${a} ${op} ${b}`, value: target };
+      } else {
+        while (true) {
+          op = Math.random() < 0.5 ? '+' : '-';
+          a = Math.floor(Math.random() * 21);
+          b = Math.floor(Math.random() * 21);
+          let val = op === '+' ? a + b : a - b;
+          if (val !== target && val >= 0 && val <= 20) {
+            return { text: `${a} ${op} ${b}`, value: val };
+          }
+        }
+      }
+    }
+
+    function generateSingleQuestion() {
+      selectedIndexes.clear();
+      messageElement.textContent = "";
+      checkBtn.style.display = "inline-block";
+      newBtn.style.display = "none";
+
+      const target = Math.floor(Math.random() * 19) + 1; // 1-19
+      questionElement.textContent = `${target}のこたえになるしきをすべてえらんでください`;
+
+      const correctCount = Math.floor(Math.random() * 5) + 1; // 1-5 correct answers
+
+      const correct = Array.from({ length: correctCount }, () => getRandomExpression(target, true));
+      const incorrectCount = 5 - correctCount;
+      const incorrect = Array.from({ length: incorrectCount }, () => getRandomExpression(target, false));
+
+      const allChoices = [...correct, ...incorrect].sort(() => Math.random() - 0.5);
+
+      correctAnswers = allChoices
+        .map((c, i) => (c.value === target ? i : -1))
+        .filter(i => i !== -1);
+
+      choicesContainer.innerHTML = "";
+
+      allChoices.forEach((choice, index) => {
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.textContent = choice.text;
+        div.onclick = () => {
+          div.classList.toggle("selected");
+          if (selectedIndexes.has(index)) {
+            selectedIndexes.delete(index);
+          } else {
+            selectedIndexes.add(index);
+          }
+        };
+        choicesContainer.appendChild(div);
+      });
+    }
+
+    function checkAnswer() {
+      const correctSet = new Set(correctAnswers);
+      if (
+        selectedIndexes.size === correctSet.size &&
+        [...selectedIndexes].every(index => correctSet.has(index))
+      ) {
+        messageElement.textContent = "🎉 Good Job!";
+        messageElement.style.color = "green";
+        checkBtn.style.display = "none";
+
+        // tự động chuyển câu hỏi tiếp sau 1 giây
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < 5) {
+            generateSingleQuestion();
+          } else {
+            showFinish();
+          }
+        }, 1000);
+      } else {
+        messageElement.textContent = "❌ Try Again!";
+        messageElement.style.color = "red";
+      }
+    }
+
+    function showFinish() {
+      questionElement.textContent = "🎊 Congratulations! You finished all 5 questions! 🎊";
+      choicesContainer.innerHTML = "";
+      messageElement.textContent = "";
+      checkBtn.style.display = "none";
+      newBtn.style.display = "inline-block";
+    }
+
+    function startNewGame() {
+      currentQuestionIndex = 0;
+      generateSingleQuestion();
+      messageElement.textContent = "";
+      newBtn.style.display = "none";
+      checkBtn.style.display = "inline-block";
+    }
+
+    // Bắt đầu trò chơi
+    startNewGame();
+  </script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LEVEL 3 つなぎ</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+  <h1>LEVEL 3 <br>けいさんし、おなじ　こたえをせんでつなぎましょう</h1>
+  <img src="../image/lv3_img.jpg" height="150px" width="150px" alt="Sprunki">
+  <div class="row" id="row1"></div>
+  <div class="row" id="row2"></div>
+  <div id="message"></div>
+  <canvas id="lineCanvas" width="1200" height="800"></canvas>
+  <button class="common-button" id="reset-button" onclick="generate()" >New</button>
+
+  <div class="nav-buttons">
+    <a href="level2.html" class="nav-button">🔙 Previous Level</a>
+    <a href="math.html" class="nav-button">🎓 Back</a>
+    <a href="level4.html" class="nav-button">🔜 Next Level</a>
+  </div>
+  <script>
+    const canvas = document.getElementById('lineCanvas');
+    const ctx = canvas.getContext('2d');
+    let startDot = null;
+    let matchedPairs = 0;
+
+    function getDotCenter(dot) {
+      const rect = dot.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2 + window.scrollX,
+        y: rect.top + rect.height / 2 + window.scrollY
+      };
+    }
+
+    function randomExpression(result, isAddition) {
+      if (isAddition) {
+        const a = Math.floor(Math.random() * (result + 1));
+        const b = result - a;
+        return `${a} + ${b}`;
+      } else {
+        const minA = result;
+        const maxA = 10;
+        const a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+        const b = a - result;
+        return `${a} - ${b}`;
+      }
+    }
+
+    function generateExpressionPair() {
+      let result, expr1, expr2, isAddition;
+
+      while (true) {
+        isAddition = Math.random() < 0.5;
+        result = Math.floor(Math.random() * 20) + 1;
+
+        if (isAddition && result <= 20) {
+          expr1 = randomExpression(result, true);
+          expr2 = randomExpression(result, true);
+          break;
+        } else if (!isAddition && result <= 10) {
+          expr1 = randomExpression(result, false);
+          expr2 = randomExpression(result, false);
+          break;
+        }
+      }
+
+      return { result, expr1, expr2 };
+    }
+
+    function generate() {
+      const row1 = document.getElementById('row1');
+      const row2 = document.getElementById('row2');
+      row1.innerHTML = '';
+      row2.innerHTML = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('message').textContent = '';
+      matchedPairs = 0;
+      startDot = null;
+
+      const top = [];
+      const bottom = [];
+
+      // Tạo 5 cặp phép toán có cùng kết quả
+      for (let i = 0; i < 5; i++) {
+        const { result, expr1, expr2 } = generateExpressionPair();
+        top.push({ expr: expr1, result });
+        bottom.push({ expr: expr2, result });
+      }
+
+      // Trộn thứ tự để ngẫu nhiên
+      top.sort(() => Math.random() - 0.5);
+      bottom.sort(() => Math.random() - 0.5);
+
+      function createBox(expr, result) {
+        const box = document.createElement('div');
+        box.className = 'box';
+        box.textContent = expr;
+
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.dataset.result = result;
+        dot.dataset.matched = 'false';
+        box.appendChild(dot);
+        return box;
+      }
+
+      top.forEach(item => row1.appendChild(createBox(item.expr, item.result)));
+      bottom.forEach(item => row2.appendChild(createBox(item.expr, item.result)));
+
+      bindDots();
+    }
+
+    function bindDots() {
+      const dots = document.querySelectorAll('.dot');
+
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          if (dot.dataset.matched === 'true') return;
+
+          if (!startDot) {
+            startDot = dot;
+            dot.style.backgroundColor = 'blue';
+          } else {
+            const result1 = startDot.getAttribute('data-result');
+            const result2 = dot.getAttribute('data-result');
+
+            if (startDot !== dot && result1 === result2 && dot.dataset.matched === 'false') {
+              const p1 = getDotCenter(startDot);
+              const p2 = getDotCenter(dot);
+
+              ctx.beginPath();
+              ctx.moveTo(p1.x, p1.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = 'green';
+              ctx.lineWidth = 3;
+              ctx.stroke();
+              startDot.style.backgroundColor = 'gray';
+              dot.style.backgroundColor = 'gray';
+              startDot.dataset.matched = 'true';
+              dot.dataset.matched = 'true';
+              matchedPairs++;
+              if (matchedPairs === 5) {
+                document.getElementById('message').textContent = 'Good job!';
+              }
+              startDot = null;
+            } else {
+              startDot.style.backgroundColor = 'red';
+              setTimeout(() => {
+                startDot.style.backgroundColor = 'red';
+                dot.style.backgroundColor = 'red';
+              }, 300);
+              startDot = null;
+            }
+          }
+        });
+      });
+    }
+
+    // Tạo lần đầu
+    generate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Arrange the Word</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <style>
+    body {
+      font-family: 'Comic Sans MS';
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #4b40ec;
+    }
+
+    .top-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .word-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 2em;
+      color: #4b40ec;
+    }
+
+    .sound-icon {
+      font-size: 30px;
+      cursor: pointer;
+      color: #4b40ec;
+    }
+
+    .slots {
+      margin: 30px auto;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .slot,
+    .letter {
+      width: 50px;
+      height: 50px;
+      font-size: 2em;
+      border: 2px dashed #4b40ec;
+      border-radius: 10px;
+      line-height: 50px;
+      text-align: center;
+      background-color: white;
+    }
+
+    .letter {
+      border-style: solid;
+      cursor: grab;
+    }
+
+    .letters-pool {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 1.5em;
+    }
+
+    .question-container {
+      margin-bottom: 50px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>LEVEL 3 <br>Arrange the letters</h1>
+
+  <div id="questionsContainer"></div>
+
+
+  <script>
+    const words = [
+      { word: "apple", img: "image/apple.png" },
+      { word: "fish", img: "image/fish.png" },
+      { word: "ten", img: "image/10.png" },
+      { word: "elephant", img: "image/elephant.png" },
+      { word: "zebra", img: "image/zebra.png" },
+      { word: "snake", img: "image/snake.png" },
+      { word: "rabbit", img: "image/rabbit.png" },
+      { word: "cat", img: "image/cat.png" },
+      { word: "five", img: "image/5.png" },
+      { word: "dog", img: "image/dog.png" }
+    ];
+
+    const questionsContainer = document.getElementById('questionsContainer');
+
+    words.forEach((item, index) => {
+      generateQuestion(item.word, item.img, index);
+    });
+
+    function generateQuestion(word, imgSrc, index) {
+      const wordShuffled = word.split('').sort(() => Math.random() - 0.5);
+      const wordLength = word.length;
+
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question-container';
+
+      // Display image and sound
+      const topSection = document.createElement('div');
+      topSection.className = 'top-section';
+      const wordImage = document.createElement('img');
+      wordImage.src = imgSrc;
+      wordImage.alt = word;
+      wordImage.width = 120;
+      const soundIcon = document.createElement('div');
+      soundIcon.className = 'sound-icon';
+      soundIcon.textContent = '🔊';
+      soundIcon.onclick = () => playWord(word);
+      topSection.appendChild(wordImage);
+      topSection.appendChild(soundIcon);
+
+      // Display letter slots
+      const slots = document.createElement('div');
+      slots.className = 'slots';
+      for (let i = 0; i < wordLength; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.ondrop = (ev) => drop(ev, index);
+        slot.ondragover = (ev) => allowDrop(ev);
+        slots.appendChild(slot);
+      }
+
+      // Display letters to drag
+      const lettersPool = document.createElement('div');
+      lettersPool.className = 'letters-pool';
+      wordShuffled.forEach((letter, idx) => {
+        const letterDiv = document.createElement('div');
+        letterDiv.className = 'letter';
+        letterDiv.draggable = true;
+        letterDiv.textContent = letter;
+        letterDiv.ondragstart = (ev) => drag(ev);
+        lettersPool.appendChild(letterDiv);
+      });
+
+      // Add everything to the question div
+      questionDiv.appendChild(topSection);
+      questionDiv.appendChild(slots);
+      questionDiv.appendChild(lettersPool);
+      questionDiv.appendChild(document.createElement('div')); // Placeholder for message
+      questionsContainer.appendChild(questionDiv);
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.textContent);
+    }
+
+    function drop(ev, index) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const slot = ev.target;
+
+      if (slot.classList.contains('slot') && slot.textContent === '') {
+        slot.textContent = data;
+        updateCurrentWord(index);
+        checkAnswer(index);
+      }
+    }
+
+    function updateCurrentWord(index) {
+      const slots = document.querySelectorAll(`#question-container-${index} .slot`);
+      let current = '';
+      slots.forEach(slot => {
+        current += slot.textContent || '_';
+      });
+      document.getElementById(`currentWord-${index}`).textContent = current;
+    }
+
+    function checkAnswer(index) {
+      const word = words[index].word;
+      const slots = document.querySelectorAll(`#question-container-${index} .slot`);
+      let assembled = '';
+      slots.forEach(slot => {
+        assembled += slot.textContent || '_';
+      });
+
+      if (!assembled.includes('_')) {
+        const message = document.querySelector(`#question-container-${index} .message`);
+        if (assembled === word) {
+          message.textContent = '🎉 Correct!';
+          message.style.color = 'green';
+        } else {
+          message.textContent = '❌ Try again!';
+          message.style.color = 'red';
+        }
+      }
+    }
+
+    function playWord(word) {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = 'en-US';
+      utterance.pitch = 1.2;
+      utterance.rate = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+  <div class="nav-buttons">
+    <a href="lv2_abcword.html" class="nav-button">🔙 Previous Level</a>
+    <a href="../index.html" class="nav-button">🏠 HOME</a>
+  </div>
+</body>
+
+</html>

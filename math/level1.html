@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LEVEL 1 すうがくのめいろ</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+
+  <h1>LEVEL 1 <br>すうがくのめいろ</h1>
+  <img src="../image/lv1_img.jpg" height="200px" width="200px" alt="Sprunki">
+
+  <div id="maze-container"></div>
+
+  <div class="maze-step" id="finish">
+    <div class="finish">🎉 Yay! You finished the maze! 🎉</div>
+    <div class="play-again">
+      <button onclick="restartGame()">🔁 しんき</button>
+    </div>
+  </div>
+    <div class="nav-buttons">
+    <a href="level1.html" class="nav-button">🔙 Previous Level</a>
+    <a href="math.html" class="nav-button">🎓 Back</a>
+    <a href="level3.html" class="nav-button">🔜 Next Level</a>
+  </div>
+
+
+
+  <!-- Audio Elements -->
+  <audio id="correctSound" src="../audio/correc.mp3"></audio>
+  <audio id="wrongSound" src="../audio/wrong.mp3"></audio>
+
+  <script>
+    const NUM_STEPS = 5;
+    const mazeContainer = document.getElementById("maze-container");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+
+    function getRandomQuestion() {
+      const op = Math.random() < 0.5 ? '+' : '-';
+      let a, b, correct;
+
+      if (op === '+') {
+        a = Math.floor(Math.random() * 10) + 1;
+        b = Math.floor(Math.random() * (10 - a + 1));
+        correct = a + b;
+      } else {
+        a = Math.floor(Math.random() * 20) + 1;
+        b = Math.floor(Math.random() * (a + 1));
+        correct = a - b;
+      }
+
+      return {
+        question: `${a} ${op} ${b} = ?`,
+        correct
+      };
+    }
+
+    function generateQuestion(stepNum) {
+      const { question, correct } = getRandomQuestion();
+
+      const choices = new Set([correct]);
+      while (choices.size < 4) {
+        const rand = correct + Math.floor(Math.random() * 7) - 3;
+        if (rand >= 0 && rand !== correct) choices.add(rand);
+      }
+
+      const shuffledChoices = Array.from(choices).sort(() => Math.random() - 0.5);
+
+      const stepDiv = document.createElement("div");
+      stepDiv.className = "maze-step";
+      if (stepNum === 0) stepDiv.classList.add("active");
+      stepDiv.id = `step${stepNum}`;
+
+      const questionDiv = document.createElement("div");
+      questionDiv.className = "question";
+      questionDiv.innerHTML = `Question ${stepNum + 1}:<br><strong>${question}</strong>`;
+
+      const answersDiv = document.createElement("div");
+      answersDiv.className = "answers";
+
+      shuffledChoices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "answer-button"; 
+        btn.textContent = choice;
+        btn.onclick = () => {
+          const msg = document.getElementById(`msg${stepNum}`);
+          msg.classList.remove("wrong-message");
+
+          if (choice === correct) {
+            correctSound.pause(); correctSound.currentTime = 0; correctSound.play();
+            msg.textContent = "Good job! ✅";
+
+            setTimeout(() => {
+              stepDiv.classList.remove("active");
+              const nextStep = document.getElementById(`step${stepNum + 1}`);
+              if (nextStep) {
+                nextStep.classList.add("active");
+              } else {
+                document.getElementById("finish").classList.add("active");
+              }
+            }, 1000);
+          } else {
+            wrongSound.pause(); wrongSound.currentTime = 0; wrongSound.play();
+            msg.classList.add("wrong-message");
+            msg.textContent = "Oops! Try again.";
+          }
+        };
+        answersDiv.appendChild(btn);
+      });
+
+      const message = document.createElement("div");
+      message.className = "message";
+      message.id = `msg${stepNum}`;
+
+      stepDiv.appendChild(questionDiv);
+      stepDiv.appendChild(answersDiv);
+      stepDiv.appendChild(message);
+      mazeContainer.appendChild(stepDiv);
+    }
+
+    function startGame() {
+      mazeContainer.innerHTML = "";
+      document.getElementById("finish").classList.remove("active");
+
+      for (let i = 0; i < NUM_STEPS; i++) {
+        generateQuestion(i);
+      }
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    // Bắt đầu lần đầu
+    startGame();
+  </script>
+
+</body>
+</html>

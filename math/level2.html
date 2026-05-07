@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVEL 2 けいさん（２０いない）</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+    <h1>LEVEL 2 <br>たしざん、ひきざん（２０いない）</h1>
+    <img src="../image/lv2_img.png" height="150px" width="150px" alt="Sprunki">
+    <div class="problem-container" id="problem-list">
+        </div>
+    <div class="controls">
+        <button id="check-button" class="common-button">Check</button>
+        <button id="reset-button" class="common-button" >New</button>
+    </div>
+
+    <div id="result-summary" class="result-summary-container">
+    </div>
+
+    <div class="nav-buttons">
+        <a href="level1.html" class="nav-button">🔙 Previous Level</a>
+        <a href="math.html" class="nav-button">🎓 Back</a>
+        <a href="level3.html" class="nav-button">🔜 Next Level</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const problemListContainer = document.getElementById('problem-list');
+            const checkButton = document.getElementById('check-button');
+            const retryButton = document.getElementById('reset-button');
+            const resultSummaryElement = document.getElementById('result-summary'); // Lấy phần tử hiển thị kết quả
+
+            let currentProblems = [];
+
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function generateSingleProblem() {
+                const type = Math.random() < 0.5 ? 'add' : 'subtract';
+                let num1, num2, operator, answer, problemString;
+
+                if (type === 'add') {
+                    operator = '+';
+                    let operandA = getRandomInt(0, 9);
+                    let operandB = getRandomInt(0, 20 - operandA);
+                    if (Math.random() < 0.5) {
+                        num1 = operandA;
+                        num2 = operandB;
+                    } else {
+                        num1 = operandB;
+                        num2 = operandA;
+                    }
+                    answer = num1 + num2;
+                } else {
+                    operator = '-';
+                    num2 = getRandomInt(0, 9);
+                    num1 = getRandomInt(num2, 20);
+                    answer = num1 - num2;
+                }
+                problemString = `${num1} ${operator} ${num2} = `;
+                return { num1, num2, operator, answer, problemString };
+            }
+
+            function generateAndDisplayProblems() {
+                currentProblems = [];
+                problemListContainer.innerHTML = '';
+
+                for (let i = 0; i < 7; i++) {
+                    const problem = generateSingleProblem();
+                    currentProblems.push(problem);
+
+                    const problemDiv = document.createElement('div');
+                    problemDiv.className = 'problem';
+
+                    const problemTextSpan = document.createElement('span');
+                    problemTextSpan.className = 'problem-text';
+                    problemTextSpan.textContent = problem.problemString;
+
+                    const answerInput = document.createElement('input');
+                    answerInput.type = 'number';
+                    answerInput.className = 'answer-input';
+
+                    const feedbackSpan = document.createElement('span');
+                    feedbackSpan.className = 'result-feedback';
+
+                    problemDiv.appendChild(problemTextSpan);
+                    problemDiv.appendChild(answerInput);
+                    problemDiv.appendChild(feedbackSpan);
+                    problemListContainer.appendChild(problemDiv);
+                }
+                 // Xóa nội dung kết quả cũ khi tạo bài tập mới
+                if (resultSummaryElement) {
+                    resultSummaryElement.textContent = '';
+                }
+            }
+
+            function checkAnswers() {
+                const problemElements = problemListContainer.querySelectorAll('.problem');
+                let correctAnswersCount = 0; // Biến đếm số câu đúng
+                const totalProblems = currentProblems.length; // Tổng số câu hỏi
+
+                problemElements.forEach((problemElement, index) => {
+                    problemElement.classList.remove('problem-correct-bg', 'problem-incorrect-bg', 'shake-animation');
+                    
+                    const answerInput = problemElement.querySelector('.answer-input');
+                    const feedbackSpan = problemElement.querySelector('.result-feedback');
+                    
+                    const userAnswer = answerInput.value.trim() === '' ? NaN : parseInt(answerInput.value, 10);
+                    const correctAnswer = currentProblems[index].answer;
+
+                    if (!isNaN(userAnswer) && userAnswer === correctAnswer) {
+                        feedbackSpan.textContent = '✔';
+                        feedbackSpan.className = 'result-feedback text-correct';
+                        problemElement.classList.add('problem-correct-bg');
+                        correctAnswersCount++; // Tăng biến đếm nếu đúng
+                    } else {
+                        feedbackSpan.textContent = '✘';
+                        feedbackSpan.className = 'result-feedback text-incorrect';
+                        problemElement.classList.add('problem-incorrect-bg');
+                        
+                        problemElement.classList.add('shake-animation');
+                        setTimeout(() => {
+                            problemElement.classList.remove('shake-animation');
+                        }, 400);
+                    }
+                });
+
+                // Hiển thị kết quả tổng kết
+                if (resultSummaryElement) {
+                    resultSummaryElement.textContent = `Kết quả: ${correctAnswersCount}/${totalProblems}`;
+                }
+            }
+
+            checkButton.addEventListener('click', checkAnswers);
+            retryButton.addEventListener('click', generateAndDisplayProblems);
+
+            generateAndDisplayProblems();
+        });
+    </script>
+</body>
+</html>

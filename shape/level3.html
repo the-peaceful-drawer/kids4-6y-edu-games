@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>LEVEL 3 パターン・チャレンジ</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <style>
+    .level-indicator {
+      font-size: 20px;
+      font-weight: bold;
+      color: #34495e;
+      margin-bottom: 10px;
+    }
+
+    .pattern-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+      font-size: 45px;
+      min-height: 60px;
+    }
+
+    .choice-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .choice-btn {
+      font-size: 40px;
+      padding: 10px 25px;
+      cursor: pointer;
+      border: 3px solid #ddd;
+      border-radius: 15px;
+      background: #fff;
+      transition: 0.2s;
+    }
+
+    .choice-btn:hover {
+      border-color: #3498DB;
+      background: #ebf5fb;
+    }
+
+    .progress-bar {
+      width: 300px;
+      height: 10px;
+      background: #eee;
+      margin: 10px auto;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #2ecc71;
+      width: 0%;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>LEVEL 3 <br>つぎの かたちは なにかな？</h1>
+
+  <div class="level-indicator" id="difficulty-text">Difficulty: Easy</div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress"></div>
+  </div>
+
+  <div class="pattern-container" id="pattern"></div>
+  <div class="choice-container" id="choices"></div>
+
+  <div id="message" class="message"></div>
+  <button class="common-button" id="next-lv-btn" onclick="nextDifficulty()" style="display:none;">Next
+    Difficulty</button>
+  <button class="common-button" id="reset-button" onclick="resetGame()" style="display:none;">Play Again</button>
+
+  <div class="nav-buttons">
+    <a href="level2.html" class="nav-button">🔙 Previous Level</a>
+    <a href="../index.html" class="nav-button">🏠 HOME</a>
+  </div>
+
+  <script>
+    const shapes = ['🔴', '🟦', '🔺', '⭐', '🍀', '🟡'];
+    let currentDifficulty = 1; // 1: Easy, 2: Medium, 3: Hard
+    let answer = '';
+
+    function generatePattern() {
+      const patternEl = document.getElementById('pattern');
+      const choicesEl = document.getElementById('choices');
+      const diffText = document.getElementById('difficulty-text');
+      const progress = document.getElementById('progress');
+
+      document.getElementById('message').textContent = '';
+      document.getElementById('next-lv-btn').style.display = 'none';
+
+      let pArray = [];
+      let s = [...shapes].sort(() => Math.random() - 0.5);
+      let a = s[0], b = s[1], c = s[2];
+
+      if (currentDifficulty === 1) {
+        diffText.textContent = "かんたん (Easy)";
+        pArray = [a, b, a, b];
+        answer = a;
+        progress.style.width = "33%";
+      } else if (currentDifficulty === 2) {
+        diffText.textContent = "ふつう (Medium)";
+        pArray = [a, a, b, a, a];
+        answer = b;
+        progress.style.width = "66%";
+      } else {
+        diffText.textContent = "むずかしい (Hard)";
+        pArray = [a, b, c, a, b];
+        answer = c;
+        progress.style.width = "100%";
+      }
+
+      patternEl.innerHTML = pArray.map(p => `<div>${p}</div>`).join('') + '<div style="color:#3498db">?</div>';
+
+      // Tạo nút chọn đáp án ngẫu nhiên[cite: 2, 6]
+      let options = [answer];
+      while (options.length < 3) {
+        let randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+        if (!options.includes(randomShape)) options.push(randomShape);
+      }
+      options.sort(() => Math.random() - 0.5);
+
+      choicesEl.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt);
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const msg = document.getElementById('message');
+      if (selected === answer) {
+        msg.textContent = '🎉 Correct! すごいね！';
+        msg.style.color = 'green';
+        document.getElementById('choices').innerHTML = '';
+
+        if (currentDifficulty < 3) {
+          document.getElementById('next-lv-btn').style.display = 'inline-block';
+        } else {
+          msg.textContent = '🎊 All Levels Cleared! 天才！ 🎊';
+          document.getElementById('reset-button').style.display = 'inline-block';
+        }
+      } else {
+        msg.textContent = '❌ Try again! もっかい やってみよう！';
+        msg.style.color = 'red';
+      }
+    }
+
+    function nextDifficulty() {
+      currentDifficulty++;
+      generatePattern();
+    }
+
+    function resetGame() {
+      currentDifficulty = 1;
+      document.getElementById('reset-button').style.display = 'none';
+      generatePattern();
+    }
+
+    generatePattern();
+  </script>
+</body>
+
+</html>

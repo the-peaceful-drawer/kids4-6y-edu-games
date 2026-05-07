@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>LEVEL4 すうがくうめ</title>
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+<h1>LEVEL 4 <br>すうじをうめてください</h1>
+<img src="../image/lv4_img.png" height="150px" width="150px" alt="Sprunki">
+<div class="target" id="target"></div>
+<div id="questions"></div>
+<button id="check-button" class="common-button">Check</button>
+<div class="message" id="message"></div>
+<button id="reset-button" class="common-button" style="display:none;">New</button>
+<div class="nav-buttons">
+  <a href="level3.html" class="nav-button">🔙 Previous Level</a>
+  <a href="math.html" class="nav-button">🎓 Back</a>
+  <a href="level5.html" class="nav-button">🔜 Next Level</a>
+</div>
+
+<script>
+  const targetEl = document.getElementById('target');
+  const questionsEl = document.getElementById('questions');
+  const checkBtn = document.getElementById('check-button');
+  const messageEl = document.getElementById('message');
+  const newBtn = document.getElementById('reset-button');
+
+  const TOTAL_SETS = 5;
+  let currentSetCount = 0;
+
+  let currentTarget = 0;
+  let currentQuestions = [];
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min +1)) + min;
+  }
+
+  function createQuestion(target) {
+    const type = randomInt(1,3);
+    let a,b;
+    if (type === 1) {
+      a = randomInt(0, target);
+      b = target - a;
+      return {
+        html: `${a} + <input type="text" data-answer="${b}" />`
+      };
+    } else if (type === 2) {
+      b = randomInt(target, 19);
+      a = b - target;
+      return {
+        html: `${b} - <input type="text" data-answer="${a}" />`
+      };
+    } else {
+      b = randomInt(0, target);
+      a = target - b;
+      return {
+        html: `<input type="text" data-answer="${a}" /> + ${b}`
+      };
+    }
+  }
+
+  function renderQuestions() {
+    targetEl.textContent = `答え　${currentTarget}　は：`;
+    questionsEl.innerHTML = '';
+    currentQuestions.forEach((q) => {
+      questionsEl.insertAdjacentHTML('beforeend', `<div class="question">${q.html}</div>`);
+    });
+  }
+
+  function generateNewSet() {
+    currentTarget = randomInt(5, 19);
+    currentQuestions = [];
+    for(let i=0; i<3; i++) {
+      currentQuestions.push(createQuestion(currentTarget));
+    }
+    messageEl.textContent = '';
+    checkBtn.style.display = 'inline-block';
+    newBtn.style.display = 'none';
+    renderQuestions();
+  }
+
+  checkBtn.onclick = () => {
+    const inputs = document.querySelectorAll('input');
+    let allCorrect = true;
+    inputs.forEach(input => {
+      if (Number(input.value) !== Number(input.dataset.answer)) {
+        allCorrect = false;
+      }
+    });
+    if(allCorrect) {
+      messageEl.style.color = 'green';
+      messageEl.textContent = '🎉 Good job!';
+      checkBtn.style.display = 'none';
+      currentSetCount++;
+      if(currentSetCount < TOTAL_SETS) {
+        setTimeout(() => {
+          generateNewSet();
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          messageEl.textContent = '🎊 Congratulations! You completed all questions! 🎊';
+          newBtn.style.display = 'inline-block';
+          questionsEl.innerHTML = '';
+          targetEl.textContent = '';
+        }, 1000);
+      }
+    } else {
+      messageEl.style.color = 'red';
+      messageEl.textContent = '❌ Try again!';
+    }
+  };
+
+  newBtn.onclick = () => {
+    currentSetCount = 0;
+    generateNewSet();
+    messageEl.textContent = '';
+    checkBtn.style.display = 'inline-block';
+    newBtn.style.display = 'none';
+  };
+
+  generateNewSet();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ABC WORD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 10px;
+      background: #f5f5f5;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 6px;
+      padding: 12px 18px;
+      background: #cce5ff;
+      border-radius: 10px;
+      cursor: grab;
+      font-size: 28px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .word_image-box {
+      display: inline-block;
+      margin: 10px;
+      border: 2px dashed #aaa;
+      padding: 10px;
+      width: 120px;
+      height: 160px;
+      vertical-align: top;
+      background: white;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .word_image-box img {
+      width: 100px;
+      height: 100px;
+    }
+
+    .word_image-box.correct {
+      border-color: green;
+      background: #e0ffe0;
+    }
+
+    .speak-btn {
+      margin-top: 5px;
+      padding: 4px 8px;
+      background: #ffd966;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    #words {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>LEVEL 2 <br>ABC WORD</h1>
+  <h2>Match the word to the picture</h2>
+
+  <div id="words">
+    <!-- Chữ cái từ A đến Z -->
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-M">Monkey
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-C">Cat
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-E">
+      Elephant</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-J">Juice
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-G">
+      Giraffe</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-O">Orange
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-I">Ice
+      Cream</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-D">Dog
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-K">
+      Kangaroo</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-N">Numbat
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-A">Apple
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-Q">Queen
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-R">
+      Railroad Crossing</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-L">Lion
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-S">Snake
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-Y">Yoyo
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-U">
+      Umbrella</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-V">Violin
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-W">Whale
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-X">
+      Xylophone</div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-F">Fish
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-T">Tiger
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-P">Pencil
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-Z">Zebra
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-B">Ball
+    </div>
+    <div class="word" draggable="true" ontouchstart="dragStartTouch(event)" ondragstart="drag(event)" id="word-H">
+      Helicopter</div>
+  </div>
+
+  <div id="images">
+    <!-- Ví dụ minh họa cho mỗi chữ -->
+    <script>
+      const items = [
+        ["Apple", "Apple"], ["Ball", "Ball"], ["Cat", "Cat"], ["Dog", "Dog"], ["Elephant", "Elephant"],
+        ["Fish", "Fish"], ["Giraffe", "Giraffe"], ["Helicopter", "Helicopter"], ["Ice Cream", "Ice Cream"], ["Juice", "Juice"],
+        ["Kangaroo", "Kangaroo"], ["Lion", "Lion"], ["Monkey", "Monkey"], ["Numbat", "Numbat"], ["Orange", "Orange"],
+        ["Pencil", "Pencil"], ["Qeen", "Queen"], ["Railroad Crossing", "Railroad Crossing"], ["Snake", "Snake"], ["Tiger", "Tiger"],
+        ["Umbrella", "Umbrella"], ["Violin", "Violin"], ["Whale", "Whale"], ["Xylophone", "Xylophone"], ["Yoyo", "Yoyo"], ["Zebra", "Zebra"]
+      ];
+
+      items.forEach(([word, word_ima]) => {
+        const imageFile = `../image/${word_ima.toLowerCase().replace(' ', '_')}.png`;
+        document.write(`
+        <div class="word_image-box" ondrop="drop(event)" ondragover="allowDrop(event)" data-word="${word}">
+          <img src="${imageFile}" alt="${word_ima}">
+          <button class="speak-btn" onclick="speakWord('${word_ima}')">Listen</button>
+        </div>
+      `);
+      });
+    </script>
+    <div class="nav-buttons">
+      <a href="lv1_alphabet.html" class="nav-button">🔙 Previous Level</a>
+      <a href="../index.html" class="nav-button">🏠 HOME</a>
+      <a href="lv3_number.html" class="nav-button">🔜 Next Level</a>
+    </div>
+  </div>
+
+  <script>
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    function dragStartTouch(ev) { ev.target.draggable = true; }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const word = document.getElementById(data).innerText;
+      if (ev.currentTarget.dataset.word === word) {
+        ev.currentTarget.classList.add("correct");
+        if (!ev.currentTarget.querySelector('.dropped')) {
+          const dropped = document.createElement("div");
+          dropped.className = "dropped";
+          dropped.innerText = word;
+          ev.currentTarget.appendChild(dropped);
+          speakWord(word, ev.currentTarget.innerText.trim());
+        }
+      }
+    }
+
+    function speakWord(word, word_ima) {
+      const utter = new SpeechSynthesisUtterance(`${word}`);
+      utter.lang = "en-US";
+      speechSynthesis.speak(utter);
+    }
+  </script>
+</body>
+
+</html>

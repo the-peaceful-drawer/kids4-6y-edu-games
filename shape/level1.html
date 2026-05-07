@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>LEVEL 1 かたちつなぎ</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <style>
+        body {
+            background-color: #b8e994;
+        }
+
+        /* Màu xanh nhạt theo ảnh mẫu */
+
+        .wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            /* Ép 2 hàng xếp dọc (trên/dưới) */
+            align-items: center;
+        }
+
+        #row1 {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 120px;
+            /* Tạo khoảng trống ở giữa để vẽ dây */
+        }
+
+        #row2 {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Thiết kế Box chuẩn */
+        .box {
+            width: 140px;
+            height: 80px;
+            background-color: #fceea7;
+            border: 1px solid #7f8c8d;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 22px;
+            font-weight: bold;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Thiết kế DOT: Coppy y chang kích thước Math Level 3 */
+        /* Thiết kế DOT: Nhỏ gọn và bỏ viền đen để giống hệt Math Level 3 */
+        .dot {
+            width: 16px;
+            height: 16px;
+            background-color: #ff0000;
+            /* Màu đỏ */
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            z-index: 20;
+            transition: transform 0.2s;
+        }
+
+        .dot:hover {
+            transform: scale(1.3);
+        }
+
+        /* Rút ngắn khoảng cách lại một chút vì nút đã nhỏ đi */
+        #row1 .dot {
+            bottom: -25px;
+        }
+
+        #row2 .dot {
+            top: -25px;
+        }
+
+        /* Hình vẽ trong Box */
+        .shape-v {
+            width: 45px;
+            height: 45px;
+        }
+
+        .circle-v {
+            background: #ff5e57;
+            border-radius: 50%;
+        }
+
+        .square-v {
+            background: #1e90ff;
+        }
+
+        .triangle-v {
+            width: 0;
+            height: 0;
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-bottom: 45px solid #2ed573;
+        }
+
+        #lineCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        #message {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>LEVEL 1 <br>なまえと かたちを せんで つなぎましょう</h1>
+    <!-- Ảnh minh họa từ source -->
+    <div style="text-align: center;">
+    </div>
+
+    <div class="wrapper">
+        <canvas id="lineCanvas" width="1200" height="800"></canvas>
+        <div class="row" id="row1"></div>
+        <div class="row" id="row2"></div>
+    </div>
+
+    <div id="message"></div>
+    <div style="text-align: center;">
+        <button class="common-button" id="reset-button" onclick="generate()">New Game</button>
+    </div>
+
+    <div class="nav-buttons">
+        <a href="../index.html" class="nav-button">🏠 HOME</a>
+        <a href="level2.html" class="nav-button">🔜 Next Level</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('lineCanvas');
+        const ctx = canvas.getContext('2d');
+        let startDot = null;
+        let matchedPairs = 0;
+
+        const shapes = [
+            { id: 'c', name: 'まる', html: '<div class="shape-v circle-v"></div>' },
+            { id: 's', name: 'しかく', html: '<div class="shape-v square-v"></div>' },
+            { id: 't', name: 'さんかく', html: '<div class="shape-v triangle-v"></div>' },
+            { id: 'st', name: 'ほし', html: '<div style="font-size:45px; color:#f1c40f;">★</div>' }
+        ];
+
+        // Hàm lấy tọa độ chính xác tuyệt đối so với Canvas
+        function getDotCenter(dot) {
+            const rect = dot.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect(); // Lấy vị trí của bảng vẽ
+
+            return {
+                // Lấy tọa độ nút trừ đi độ lệch của canvas
+                x: rect.left - canvasRect.left + (rect.width / 2),
+                y: rect.top - canvasRect.top + (rect.height / 2)
+            };
+        }
+
+        function generate() {
+            const row1 = document.getElementById('row1');
+            const row2 = document.getElementById('row2');
+            row1.innerHTML = ''; row2.innerHTML = '';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('message').textContent = '';
+            matchedPairs = 0; startDot = null;
+
+            const top = [...shapes].sort(() => Math.random() - 0.5);
+            const bottom = [...shapes].sort(() => Math.random() - 0.5);
+
+            function createBox(content, result) {
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.innerHTML = content;
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.dataset.result = result;
+                dot.dataset.matched = 'false';
+                box.appendChild(dot);
+                return box;
+            }
+
+            top.forEach(item => row1.appendChild(createBox(item.name, item.id)));
+            bottom.forEach(item => row2.appendChild(createBox(item.html, item.id)));
+
+            bindDots();
+        }
+
+        function bindDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    if (dot.dataset.matched === 'true') return;
+
+                    if (!startDot) {
+                        startDot = dot;
+                        dot.style.backgroundColor = '#3498db';
+                    } else {
+                        const r1 = startDot.getAttribute('data-result');
+                        const r2 = dot.getAttribute('data-result');
+
+                        if (startDot !== dot && r1 === r2 && dot.dataset.matched === 'false') {
+                            const p1 = getDotCenter(startDot);
+                            const p2 = getDotCenter(dot);
+
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = '#2ecc71';
+                            ctx.lineWidth = 4;
+                            ctx.stroke();
+
+                            startDot.style.backgroundColor = '#bdc3c7';
+                            dot.style.backgroundColor = '#bdc3c7';
+                            startDot.dataset.matched = 'true';
+                            dot.dataset.matched = 'true';
+                            matchedPairs++;
+                            if (matchedPairs === shapes.length) {
+                                document.getElementById('message').textContent = 'Good job! 🎉';
+                            }
+                            startDot = null;
+                        } else {
+                            startDot.style.backgroundColor = '#e74c3c';
+                            setTimeout(() => {
+                                if (startDot) startDot.style.backgroundColor = '#ff0000';
+                                dot.style.backgroundColor = '#ff0000';
+                                startDot = null;
+                            }, 300);
+                        }
+                    }
+                });
+            });
+        }
+
+        generate();
+    </script>
+</body>
+
+</html>
