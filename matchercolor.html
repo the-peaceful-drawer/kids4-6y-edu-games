@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Color Match Maze</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <style>
+    body {
+      font-family: 'Comic Sans MS';
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #4b40ec;
+      font-size: 2.5em;
+      text-shadow: 2px 2px #ffe;
+    }
+
+    .maze-step {
+      display: none;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px #4b40ec;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .question {
+      font-size: 2em;
+      color: #4b40ec;
+      margin-bottom: 20px;
+    }
+
+    .color-image {
+      width: 150px;
+      height: 150px;
+      margin-bottom: 20px;
+      border: 3px solid #4b40ec;
+      border-radius: 15px;
+      object-fit: cover;
+    }
+
+    .answers {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .answers button {
+      font-size: 1.2em;
+      padding: 15px 30px;
+      border-radius: 15px;
+      background-color: #ffffff;
+      border: 3px solid #4b40ec;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .answers button:hover {
+      background-color: #f0f0f0;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: red;
+    }
+
+    .finish {
+      font-size: 2em;
+      color: green;
+      background: #dcedc8;
+      padding: 20px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Color Match Maze</h1>
+
+  <div id="maze-container"></div>
+  <div class="maze-step" id="finish">
+    <div class="finish">🎉 Yay! You finished the maze! 🎉</div>
+  </div>
+    <a href="index.html" class="nav-button">🏠 HOME</a>
+  <!-- Audio Elements -->
+  <audio id="correctSound" src="audio/"></audio>
+  <audio id="wrongSound" src="audio/"></audio>
+
+  <script>
+    const colorQuestions = [
+      { img: 'image/red.png', answer: 'Red' },
+      { img: 'image/blue.png', answer: 'Blue' },
+      { img: 'image/yellow.png', answer: 'Yellow' },
+      { img: 'image/green.png', answer: 'Green' },
+      { img: 'image/orange_color.png', answer: 'Orange' },
+      { img: 'image/purple.png', answer: 'Purple' },
+      { img: 'image/pink.png', answer: 'Pink' },
+      { img: 'image/gray.png', answer: 'Gray' },
+      { img: 'image/black.png', answer: 'Black' },
+    ];
+
+    const allColors = ['Red', 'Blue', 'Yellow', 'Green', 'Orange', 'Purple', 'Pink', 'Gray', 'Black'];
+
+    const mazeContainer = document.getElementById("maze-container");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function generateQuestion(stepNum, colorObj) {
+      const stepDiv = document.createElement("div");
+      stepDiv.className = "maze-step";
+      if (stepNum === 0) stepDiv.classList.add("active");
+      stepDiv.id = `step${stepNum}`;
+
+      const questionDiv = document.createElement("div");
+      questionDiv.className = "question";
+      questionDiv.innerHTML = `Question ${stepNum + 1}`;
+
+      const img = document.createElement("img");
+      img.src = colorObj.img;
+      img.className = "color-image";
+
+      const answersDiv = document.createElement("div");
+      answersDiv.className = "answers";
+
+      const choices = new Set([colorObj.answer]);
+      while (choices.size < 4) {
+        const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
+        choices.add(randomColor);
+      }
+
+      const shuffledChoices = shuffle(Array.from(choices));
+
+      shuffledChoices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice;
+        btn.onclick = () => {
+          const msg = document.getElementById(`msg${stepNum}`);
+          if (choice === colorObj.answer) {
+            correctSound.play();
+            speakColor(colorObj.answer);
+            msg.textContent = "";
+            stepDiv.classList.remove("active");
+            const nextStep = document.getElementById(`step${stepNum + 1}`);
+            if (nextStep) {
+              nextStep.classList.add("active");
+            } else {
+              document.getElementById("finish").classList.add("active");
+            }
+          } else {
+            wrongSound.play();
+            msg.textContent = "Oops! Try again.";
+          }
+        };
+        answersDiv.appendChild(btn);
+      });
+
+      const message = document.createElement("div");
+      message.className = "message";
+      message.id = `msg${stepNum}`;
+
+      stepDiv.appendChild(questionDiv);
+      stepDiv.appendChild(img);
+      stepDiv.appendChild(answersDiv);
+      stepDiv.appendChild(message);
+
+      mazeContainer.appendChild(stepDiv);
+    }
+
+    colorQuestions.forEach((q, idx) => {
+      generateQuestion(idx, q);
+    });
+
+    function speakColor(colorName) {
+      const utterance = new SpeechSynthesisUtterance(colorName);
+      utterance.lang = 'en-US';
+      utterance.pitch = 1.2;
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+
+</body>
+
+</html>
